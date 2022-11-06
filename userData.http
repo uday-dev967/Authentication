@@ -10,6 +10,16 @@ Content-Type: application/json
 }
 
 ###
+
+POST  http://localhost:3000/register
+Content-Type: application/json
+
+{
+  "username": "adam_richardo",
+  "name": "Adam Richardo",
+}
+
+###
 POST  http://localhost:3000/register/
 Content-Type: application/json
 

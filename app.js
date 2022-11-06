@@ -29,7 +29,7 @@ initializeDBAndServer();
 // POST ### CREATING NEW USER API
 
 app.post("/register", async (request, response) => {
-  const { username, name, password, gender, location } = request.body;
+  const { password, gender, location, username, name } = request.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   console.log(hashedPassword);
   const len = password.length;
@@ -42,7 +42,7 @@ app.post("/register", async (request, response) => {
   const dbresponse = await db.get(checkUserExistenceQuery);
   if (dbresponse === undefined) {
     if (len < 5) {
-      response.status = 400;
+      response.status(400);
       response.send("Password is too short");
     } else {
       const createNewUserQuery = `
@@ -50,10 +50,11 @@ app.post("/register", async (request, response) => {
             VALUES ('${username}','${name}','${hashedPassword}','${gender}','${location}');`;
       const newUser = await db.run(createNewUserQuery);
       const newUserId = newUser.lastID;
+      response.status(200);
       response.send("User created successfully");
     }
   } else {
-    response.status = 400;
+    response.status(400);
     response.send("User already exists");
   }
 });
@@ -70,14 +71,14 @@ app.post("/login", async (request, response) => {
   const dbUser = await db.get(checkValidUserQuery);
 
   if (dbUser === undefined) {
-    response.status = 400;
+    response.status(400);
     response.send("Invalid user");
   } else {
     const isCorrectPasscode = await bcrypt.compare(password, dbUser.password);
     if (isCorrectPasscode) {
       response.send("Login success!");
     } else {
-      response.status = 400;
+      response.status(400);
       response.send("Invalid password");
     }
   }
@@ -97,7 +98,7 @@ app.put("/change-password", async (request, response) => {
   const dbUser = await db.get(checkValidUserQuery);
 
   if (dbUser === undefined) {
-    response.status = 400;
+    response.status(400);
     response.send("Invalid user");
   } else {
     const isCorrectPasscode = await bcrypt.compare(
@@ -113,11 +114,11 @@ app.put("/change-password", async (request, response) => {
         await db.run(updatePasswordQuery);
         response.send("Password updated");
       } else {
-        response.status = 400;
+        response.status(400);
         response.send("Password is too short");
       }
     } else {
-      response.status = 400;
+      response.status(400);
       response.send("Invalid current password");
     }
   }
